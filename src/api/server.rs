@@ -15,6 +15,7 @@
  * - GET /dsn/:name : Informations d'un DSN
  * - PUT /dsn/:name : Modifier un DSN
  * - DELETE /dsn/:name : Supprimer un DSN
+ * - POST /api/ai/db-advisor : Conseils DB intelligents
  * 
  * Liens avec d'autres modules :
  * - Utilise src/api/handlers.rs pour les handlers HTTP
@@ -23,6 +24,7 @@
  */
 
 use crate::activity::ActivityTracker;
+use crate::ai::handlers as ai_handlers;
 use crate::api::handlers;
 use crate::dsn::handlers as dsn_handlers;
 use crate::sql::server as sql_server;
@@ -97,6 +99,7 @@ pub async fn start_server(engine: Arc<StorageEngine>, host: &str, port: u16) -> 
         .route("/migration/test", post(handlers::test_migration_connection))
         .route("/migration/start", post(handlers::start_migration))
         .route("/migration/status/:id", get(handlers::get_migration_status))
+        .route("/api/ai/db-advisor", post(ai_handlers::db_advisor))
         .layer(CorsLayer::permissive())
         .layer(RequestBodyLimitLayer::new(10 * 1024 * 1024)) // 10 MB
         .layer(TraceLayer::new_for_http())
@@ -136,6 +139,7 @@ pub async fn start_server(engine: Arc<StorageEngine>, host: &str, port: u16) -> 
         "POST /migration/test - Tester une connexion de base de données",
         "POST /migration/start - Démarrer une migration",
         "GET  /migration/status/:id - Statut d'une migration",
+        "POST /api/ai/db-advisor - Conseils DB intelligents",
     ];
     
     for endpoint in endpoints {

@@ -10,7 +10,7 @@ class ApiClient {
   constructor(baseURL: string = 'http://127.0.0.1:8080') {
     this.client = axios.create({
       baseURL,
-      timeout: 30000, // 30 secondes
+      timeout: 300000, // 5 minutes pour les requêtes IA
       headers: {
         'Content-Type': 'application/json',
       },
@@ -132,6 +132,62 @@ class ApiClient {
         success: false,
         tables: [],
         error: error.response?.data?.error || error.message || 'Erreur lors du scan du dossier',
+      };
+    }
+  }
+
+  async dbAdvisor(dsn: string, sqlQuery?: string, mistralApiKey?: string, tables?: string[]): Promise<{ 
+    success: boolean; 
+    advice?: {
+      diagnostic: string;
+      actions_recommandees: string[];
+      risques: string[];
+      sql_suggere?: string;
+      niveau_confiance: number;
+    }; 
+    error?: string 
+  }> {
+    try {
+      // Créer un client avec timeout spécifique pour les requêtes IA (10 minutes)
+      const aiClient = axios.create({
+        baseURL: this.client.defaults.baseURL,
+        timeout: 600000, // 10 minutes pour permettre l'analyse de grandes bases
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const response = await aiClient.post<{ 
+        success: boolean; 
+        advice?: {
+          diagnostic: string;
+          actions_recommandees: string[];
+          risques: string[];
+          sql_suggere?: string;
+          niveau_confiance: number;
+        }; 
+        error?: string 
+      }>(
+        '/api/ai/db-advisor',
+        { 
+          dsn,
+          sql_query: sqlQuery || undefined,
+          mistral_api_key: mistralApiKey || undefined,
+          tables: tables && tables.length > 0 ? tables : undefined
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      // Gérer spécifiquement les timeouts
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        return {
+          success: false,
+          error: 'La requête a pris trop de temps (plus de 10 minutes). Cela peut arriver avec de très grandes bases de données. Essayez de :\n- Simplifier votre question\n- Utiliser un DSN avec moins de tables\n- Vérifier votre connexion réseau',
+        };
+      }
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Erreur lors de la génération des conseils',
       };
     }
   }

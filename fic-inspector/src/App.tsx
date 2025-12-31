@@ -5,6 +5,7 @@ import MenuHandler from './components/MenuHandler';
 import Dashboard from './pages/Dashboard';
 import Tables from './pages/Tables';
 import Odbc from './pages/Odbc';
+import AI from './pages/AI';
 import DsnManagement from './pages/DsnManagement';
 import Logs from './pages/Logs';
 import Settings from './pages/Settings';
@@ -21,6 +22,7 @@ function App() {
             <Route path="/tables" element={<Tables />} />
             <Route path="/dsn" element={<DsnManagement />} />
             <Route path="/odbc" element={<Odbc />} />
+            <Route path="/ai" element={<AI />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>

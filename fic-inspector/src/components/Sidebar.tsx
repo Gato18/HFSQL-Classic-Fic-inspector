@@ -6,7 +6,8 @@ import {
   Settings,
   FileCode,
   Terminal,
-  Database
+  Database,
+  Sparkles
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -17,6 +18,7 @@ const Sidebar: React.FC = () => {
     { path: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
     { path: '/dsn', icon: Database, label: 'Gestion DSN' },
     { path: '/odbc', icon: Terminal, label: 'Query Studio' },
+    { path: '/ai', icon: Sparkles, label: 'IA Studio' },
     { path: '/logs', icon: FileText, label: 'Logs & Diagnostics' },
     { path: '/settings', icon: Settings, label: 'Paramètres' },
   ];

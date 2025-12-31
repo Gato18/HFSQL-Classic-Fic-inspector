@@ -852,16 +852,41 @@ const Odbc: React.FC = () => {
     if (!currentDsn) return;
     setLoadingTables(true);
     try {
-      const response = await apiClient.getOdbcTables(currentDsn);
-      if (response.success) {
-        setTables(response.tables);
+      // D'abord, essayer de récupérer le chemin du DSN depuis la liste des DSN disponibles
+      const dsnConfig = availableDsns.find(d => d.name === currentDsn);
+      
+      // Si le DSN a un chemin configuré, utiliser scanDirectory pour scanner ce dossier
+      if (dsnConfig && dsnConfig.path && dsnConfig.path.trim() !== '') {
+        console.log(`📁 Utilisation du chemin du DSN ${currentDsn}: ${dsnConfig.path}`);
+        const response = await apiClient.scanDirectory(dsnConfig.path);
+        if (response.success) {
+          setTables(response.tables);
+          setSelectedFolder(dsnConfig.path);
+          setUseLocalFolder(true);
+          console.log(`✅ ${response.tables.length} table(s) trouvée(s) dans ${dsnConfig.path}`);
+        } else {
+          console.warn(`⚠️ Erreur lors du scan du dossier ${dsnConfig.path}, tentative via ODBC...`);
+          // Fallback sur ODBC si le scan échoue
+          const odbcResponse = await apiClient.getOdbcTables(currentDsn);
+          if (odbcResponse.success) {
+            setTables(odbcResponse.tables);
+            setUseLocalFolder(false);
+          }
+        }
+      } else {
+        // Si pas de chemin, utiliser ODBC directement
+        const response = await apiClient.getOdbcTables(currentDsn);
+        if (response.success) {
+          setTables(response.tables);
+          setUseLocalFolder(false);
+        }
       }
     } catch (error: any) {
       console.error('Erreur lors du chargement des tables:', error);
     } finally {
       setLoadingTables(false);
     }
-  }, [useCustomDsn, dsn, customDsn]);
+  }, [useCustomDsn, dsn, customDsn, availableDsns]);
 
   const loadRelations = useCallback(async () => {
     const currentDsn = getCurrentDsn();
@@ -881,11 +906,18 @@ const Odbc: React.FC = () => {
 
   useEffect(() => {
     const currentDsn = getCurrentDsn();
-    if (currentDsn && !useLocalFolder) {
+    if (currentDsn && availableDsns.length > 0) {
+      // Charger les tables automatiquement quand un DSN est sélectionné
+      // Le loadTables vérifiera si le DSN a un chemin et utilisera scanDirectory si disponible
       loadTables();
-      loadRelations();
+      // Charger les relations seulement si on n'utilise pas un dossier local
+      // (les relations ne sont disponibles que via ODBC, pas pour les fichiers locaux)
+      const dsnConfig = availableDsns.find(d => d.name === currentDsn);
+      if (!dsnConfig || !dsnConfig.path || dsnConfig.path.trim() === '') {
+        loadRelations();
+      }
     }
-  }, [dsn, customDsn, useCustomDsn, useLocalFolder, loadTables, loadRelations]);
+  }, [dsn, customDsn, useCustomDsn, availableDsns, loadTables, loadRelations]);
 
   const handleTableClick = async (table: string, event: React.MouseEvent) => {
     // Si Ctrl/Cmd est pressé, toggle la sélection pour les relations
