@@ -103,13 +103,7 @@ if not os.path.exists('models/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_sca
     shutil.move('split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors', 'models/diffusion_models/')
     print('  Done')
 
-# Wan 2.2 I2V 14B FP16 (higher quality)
-if not os.path.exists('models/diffusion_models/wan2.2_i2v_high_noise_14B_fp16.safetensors'):
-    print('  Downloading Wan 2.2 I2V 14B FP16...')
-    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp16.safetensors', local_dir='.', token=token)
-    import shutil
-    shutil.move('split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp16.safetensors', 'models/diffusion_models/')
-    print('  Done')
+
 
 # Wan 2.2 VAE
 if not os.path.exists('models/vae/wan2.2_vae.safetensors'):
