@@ -56,10 +56,12 @@ python -c "
 from huggingface_hub import hf_hub_download
 import os
 
+token = os.environ.get('HF_TOKEN')
+
 # Flux.1 Dev diffusion model (fp8 = lighter)
 if not os.path.exists('models/unet/flux1-dev-fp8.safetensors'):
     print('  Downloading Flux.1 Dev fp8...')
-    hf_hub_download('Comfy-Org/flux1-dev', 'flux1-dev-fp8.safetensors', local_dir='models/unet')
+    hf_hub_download('Comfy-Org/flux1-dev', 'flux1-dev-fp8.safetensors', local_dir='models/unet', token=token)
     print('  Done')
 else:
     print('  Flux.1 Dev already exists, skipping')
@@ -67,20 +69,27 @@ else:
 # Flux text encoders
 if not os.path.exists('models/clip/t5xxl_fp8_e4m3fn.safetensors'):
     print('  Downloading T5-XXL text encoder (fp8)...')
-    hf_hub_download('comfyanonymous/flux_text_encoders', 't5xxl_fp8_e4m3fn.safetensors', local_dir='models/clip')
+    hf_hub_download('comfyanonymous/flux_text_encoders', 't5xxl_fp8_e4m3fn.safetensors', local_dir='models/clip', token=token)
     print('  Done')
 
 if not os.path.exists('models/clip/clip_l.safetensors'):
     print('  Downloading CLIP-L...')
-    hf_hub_download('comfyanonymous/flux_text_encoders', 'clip_l.safetensors', local_dir='models/clip')
-    print('  Done')
-
-# Flux VAE
-if not os.path.exists('models/vae/ae.safetensors'):
-    print('  Downloading Flux VAE...')
-    hf_hub_download('black-forest-labs/FLUX.1-schnell', 'ae.safetensors', local_dir='models/vae')
+    hf_hub_download('comfyanonymous/flux_text_encoders', 'clip_l.safetensors', local_dir='models/clip', token=token)
     print('  Done')
 "
+
+# Flux VAE - download with wget (gated repo, needs token)
+if [ ! -f "models/vae/ae.safetensors" ]; then
+    echo "  Downloading Flux VAE..."
+    if [ -n "$HF_TOKEN" ]; then
+        wget --header="Authorization: Bearer $HF_TOKEN" -q -O models/vae/ae.safetensors \
+            "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors"
+        echo "  Done"
+    else
+        echo "  ERREUR: HF_TOKEN requis pour telecharger le Flux VAE !"
+        echo "  Ajoutez -e HF_TOKEN=hf_xxx dans les env vars Vast.ai"
+    fi
+fi
 
 # 4. Download Wan 2.2 models
 echo "[4/7] Telechargement Wan 2.2 Image-to-Video..."
