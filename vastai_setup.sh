@@ -87,33 +87,52 @@ print('  Done')
 fi
 
 # 4. Download Wan 2.2 models
-echo "[4/7] Telechargement Wan 2.2 Image-to-Video..."
+echo "[4/7] Telechargement Wan 2.2 Image-to-Video 14B..."
+mkdir -p models/diffusion_models models/vae models/text_encoders models/clip_vision
 python -c "
 from huggingface_hub import hf_hub_download
 import os
 
-# Wan 2.2 image-to-video 5B (fp16)
-if not os.path.exists('models/diffusion_models/wan2.2_i2v_480p_5B_fp16.safetensors'):
-    print('  Downloading Wan 2.2 I2V 5B...')
-    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/diffusion_models/wan2.2_i2v_480p_5B_fp16.safetensors', local_dir='models/diffusion_models')
+token = os.environ.get('HF_TOKEN')
+
+# Wan 2.2 I2V 14B FP8 (recommended - fast + low VRAM)
+if not os.path.exists('models/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors'):
+    print('  Downloading Wan 2.2 I2V 14B FP8...')
+    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors', local_dir='.', token=token)
+    import shutil
+    shutil.move('split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors', 'models/diffusion_models/')
+    print('  Done')
+
+# Wan 2.2 I2V 14B FP16 (higher quality)
+if not os.path.exists('models/diffusion_models/wan2.2_i2v_high_noise_14B_fp16.safetensors'):
+    print('  Downloading Wan 2.2 I2V 14B FP16...')
+    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp16.safetensors', local_dir='.', token=token)
+    import shutil
+    shutil.move('split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp16.safetensors', 'models/diffusion_models/')
     print('  Done')
 
 # Wan 2.2 VAE
 if not os.path.exists('models/vae/wan2.2_vae.safetensors'):
     print('  Downloading Wan 2.2 VAE...')
-    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/vae/wan2.2_vae.safetensors', local_dir='models/vae')
+    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/vae/wan2.2_vae.safetensors', local_dir='.', token=token)
+    import shutil
+    shutil.move('split_files/vae/wan2.2_vae.safetensors', 'models/vae/')
     print('  Done')
 
 # Text encoder for Wan
 if not os.path.exists('models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors'):
     print('  Downloading UMT5-XXL text encoder...')
-    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors', local_dir='models/text_encoders')
+    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors', local_dir='.', token=token)
+    import shutil
+    shutil.move('split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors', 'models/text_encoders/')
     print('  Done')
 
 # CLIP Vision for Wan I2V
 if not os.path.exists('models/clip_vision/clip_vision_h.safetensors'):
     print('  Downloading CLIP Vision H...')
-    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/clip_vision/clip_vision_h.safetensors', local_dir='models/clip_vision')
+    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/clip_vision/clip_vision_h.safetensors', local_dir='.', token=token)
+    import shutil
+    shutil.move('split_files/clip_vision/clip_vision_h.safetensors', 'models/clip_vision/')
     print('  Done')
 "
 
