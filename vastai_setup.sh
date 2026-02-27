@@ -121,13 +121,6 @@ if not os.path.exists('models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetenso
     shutil.move('split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors', 'models/text_encoders/')
     print('  Done')
 
-# CLIP Vision for Wan I2V
-if not os.path.exists('models/clip_vision/clip_vision_h.safetensors'):
-    print('  Downloading CLIP Vision H...')
-    hf_hub_download('Comfy-Org/Wan_2.2_ComfyUI_Repackaged', 'split_files/clip_vision/clip_vision_h.safetensors', local_dir='.', token=token)
-    import shutil
-    shutil.move('split_files/clip_vision/clip_vision_h.safetensors', 'models/clip_vision/')
-    print('  Done')
 "
 
 # 5. Download FaceID models
