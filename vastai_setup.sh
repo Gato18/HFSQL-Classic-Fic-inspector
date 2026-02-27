@@ -78,7 +78,7 @@ if not os.path.exists('models/clip/clip_l.safetensors'):
 # Flux VAE
 if not os.path.exists('models/vae/ae.safetensors'):
     print('  Downloading Flux VAE...')
-    hf_hub_download('black-forest-labs/FLUX.1-dev', 'ae.safetensors', local_dir='models/vae')
+    hf_hub_download('black-forest-labs/FLUX.1-schnell', 'ae.safetensors', local_dir='models/vae')
     print('  Done')
 "
 
