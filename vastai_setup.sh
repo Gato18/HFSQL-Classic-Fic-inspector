@@ -5,6 +5,17 @@
 # ============================================
 set -e
 
+# ---- HuggingFace Authentication ----
+# Set HF_TOKEN in Vast.ai environment variables
+if [ -n "$HF_TOKEN" ]; then
+    echo "[AUTH] Connexion HuggingFace avec token..."
+    pip install -q huggingface_hub
+    huggingface-cli login --token "$HF_TOKEN"
+else
+    echo "[WARN] HF_TOKEN non defini ! Les modeles gates (Flux) ne pourront pas etre telecharges."
+    echo "[WARN] Ajoutez HF_TOKEN dans les variables d'environnement Vast.ai."
+fi
+
 echo "========================================"
 echo "  Installation ComfyUI + Flux + Wan 2.2"
 echo "========================================"
