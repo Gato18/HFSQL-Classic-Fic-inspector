@@ -76,17 +76,14 @@ if not os.path.exists('models/clip/clip_l.safetensors'):
     print('  Done')
 "
 
-# Flux VAE - download with wget (gated repo, needs token)
+# Flux VAE - from non-gated repo (no license needed)
 if [ ! -f "models/vae/ae.safetensors" ]; then
     echo "  Downloading Flux VAE..."
-    if [ -n "$HF_TOKEN" ]; then
-        wget --header="Authorization: Bearer $HF_TOKEN" -q -O models/vae/ae.safetensors \
-            "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors"
-        echo "  Done"
-    else
-        echo "  ERREUR: HF_TOKEN requis pour telecharger le Flux VAE !"
-        echo "  Ajoutez -e HF_TOKEN=hf_xxx dans les env vars Vast.ai"
-    fi
+    python -c "
+from huggingface_hub import hf_hub_download
+hf_hub_download('ffxvs/vae-flux', 'ae.safetensors', local_dir='models/vae')
+print('  Done')
+"
 fi
 
 # 4. Download Wan 2.2 models
