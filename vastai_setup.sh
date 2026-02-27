@@ -6,14 +6,12 @@
 set -e
 
 # ---- HuggingFace Authentication ----
-# Set HF_TOKEN in Vast.ai environment variables
+# HF_TOKEN is passed directly to hf_hub_download() and wget calls
 if [ -n "$HF_TOKEN" ]; then
-    echo "[AUTH] Connexion HuggingFace avec token..."
-    pip install -q huggingface_hub
-    huggingface-cli login --token "$HF_TOKEN"
+    echo "[AUTH] Token HuggingFace detecte OK"
 else
     echo "[WARN] HF_TOKEN non defini ! Les modeles gates (Flux) ne pourront pas etre telecharges."
-    echo "[WARN] Ajoutez HF_TOKEN dans les variables d'environnement Vast.ai."
+    echo "[WARN] Faites: export HF_TOKEN=hf_xxx avant de lancer ce script."
 fi
 
 echo "========================================"
