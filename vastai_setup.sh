@@ -123,14 +123,40 @@ if not os.path.exists('models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetenso
 
 "
 
-# 5. Download FaceID models
-echo "[5/7] Telechargement FaceID..."
+# 5. Download Base SDXL Models (for Realism & Uncensored)
+echo "[5/8] Telechargement Base Model (RealVisXL V5.0)..."
+mkdir -p models/checkpoints
+python -c "
+from huggingface_hub import hf_hub_download
+import os
+
+token = os.environ.get('HF_TOKEN')
+
+# RealVisXL V5.0 Lightning (Excellent realism, fast generation)
+if not os.path.exists('models/checkpoints/RealVisXL_V5.0_Lightning.safetensors'):
+    print('  Downloading RealVisXL V5.0 Lightning...')
+    hf_hub_download('SG161222/RealVisXL_V5.0_Lightning', 'RealVisXL_V5.0_Lightning.safetensors', local_dir='models/checkpoints', token=token)
+    print('  Done')
+"
+
+# 6. Download IP-Adapter & FaceID models
+echo "[6/8] Telechargement IP-Adapter & FaceID..."
 mkdir -p models/ipadapter models/loras
 python -c "
 from huggingface_hub import hf_hub_download
 import os
 
-# IP-Adapter FaceID Portrait UNNORM SDXL (strongest)
+token = os.environ.get('HF_TOKEN')
+
+# IP-Adapter Plus SDXL (For composition, style and pose transfer)
+if not os.path.exists('models/ipadapter/ip-adapter-plus_sdxl_vit-h.safetensors'):
+    print('  Downloading IP-Adapter Plus SDXL...')
+    hf_hub_download('h94/IP-Adapter', 'sdxl_models/ip-adapter-plus_sdxl_vit-h.safetensors', local_dir='.', token=token)
+    import shutil
+    shutil.move('sdxl_models/ip-adapter-plus_sdxl_vit-h.safetensors', 'models/ipadapter/')
+    print('  Done')
+
+# IP-Adapter FaceID Portrait UNNORM SDXL (strongest face copy)
 if not os.path.exists('models/ipadapter/ip-adapter-faceid-portrait_sdxl_unnorm.bin'):
     print('  Downloading FaceID Portrait UNNORM SDXL...')
     hf_hub_download('h94/IP-Adapter-FaceID', 'ip-adapter-faceid-portrait_sdxl_unnorm.bin', local_dir='models/ipadapter')
@@ -156,16 +182,16 @@ if not os.path.exists('models/clip_vision/CLIP-ViT-H-14-laion2B-s32B-b79K.safete
     print('  Done')
 "
 
-# 6. Download InsightFace
-echo "[6/7] Telechargement InsightFace..."
+# 7. Download InsightFace
+echo "[7/8] Telechargement InsightFace..."
 python -c "
 from insightface.app import FaceAnalysis
 app = FaceAnalysis(name='buffalo_l', providers=['CPUExecutionProvider'])
 print('  InsightFace buffalo_l ready')
 "
 
-# 7. Download NSFW LoRAs
-echo "[7/7] Telechargement LoRAs NSFW..."
+# 8. Download NSFW LoRAs
+echo "[8/8] Telechargement LoRAs NSFW..."
 python -c "
 from huggingface_hub import hf_hub_download
 import os
